@@ -32,7 +32,11 @@ function matchRequest(koaRequest, samResource) {
  * @returns {*}
  */
 function koaRequest2lambdaEvent(request) {
-    return lambdaEvent(request.method, request.url, request.querystring, request.body);
+    // headers
+    let other = {
+        headers: request.header
+    };
+    return lambdaEvent(request.method, request.url, request.querystring, request.body, other);
 }
 
 /**
@@ -48,6 +52,9 @@ function getLambdaHandler(samResource, dir) {
     let pathNode = require('path');
     if (samResource.data && samResource.data.Properties && samResource.data.Properties.Handler) {
         [handlerPath, handlerName] = samResource.data.Properties.Handler.split('.');
+        if (samResource.data.Properties.CodeUri) {
+            handlerPath = pathNode.resolve(samResource.data.Properties.CodeUri, handlerPath);
+        }
     }
 
 

@@ -4,6 +4,7 @@ const {routerMiddleware} = require('./sam2koaRouter');
 const createDebug = require('debug');
 const debug = createDebug('app:index');
 const commandLineArgs = require('command-line-args');
+require('dotenv').config();
 
 // args
 const argsDef = [

@@ -2,14 +2,23 @@
   "name": "sam-koa-server",
   "version": "0.0.1",
   "description": "Run lambdas locally without docker and from sam template.yaml",
-  "keywords": ["sam", "lambda-local","yaml","server","aws","lambda"],
+  "keywords": [
+    "sam",
+    "lambda-local",
+    "yaml",
+    "server",
+    "aws",
+    "lambda"
+  ],
   "main": "index.js",
   "scripts": {
     "test": "npx mocha --require test/require-for-test.js",
     "watch": "npx mocha --require test/require-for-test.js --watch",
     "start": "node index.js"
   },
-  "author": {"name": "Gregor Tramsak"},
+  "author": {
+    "name": "Gregor Tramsak"
+  },
   "license": "ISC",
   "dependencies": {
     "command-line-args": "^5.1.0",
