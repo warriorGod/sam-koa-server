@@ -1,0 +1,28 @@
+{
+  "resources": [
+    {
+      "Name": "InlineCommentTemplate",
+      "data": {
+        "Type": "AWS::Serverless::Function",
+        "Properties": {
+          "CodeUri": "bin",
+          "Handler": "test.lambdaHandler",
+          "Runtime": "nodejs8.10",
+          "Timeout": 60,
+          "Events": {
+            "ExampleEvent": {
+              "Type": "Api",
+              "Properties": {
+                "Path": "/test",
+                "Method": "get"
+              }
+            }
+          }
+        }
+      },
+      "meta": {
+        "handler": "testme"
+      }
+    }
+  ]
+}
