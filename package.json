@@ -16,6 +16,9 @@
     "watch": "npx mocha --require test/require-for-test.js --watch",
     "start": "node index.js"
   },
+  "bin": {
+    "sam-koa-server": "./bin/sam-koa-server"
+  },
   "author": {
     "name": "Gregor Tramsak"
   },

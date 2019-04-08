@@ -36,7 +36,16 @@ function koaRequest2lambdaEvent(request) {
     let other = {
         headers: request.header
     };
-    return lambdaEvent(request.method, request.url, request.querystring, request.body, other);
+    // convert querystring to object
+    let queryParams = require('querystring').parse(request.querystring || '');
+    return lambdaEvent(request.method, request.url, queryParams, request.body, other);
+}
+
+function lambdaResponse2koa(runLambdaResponse, koaResponse) {
+    let res = runLambdaResponse;
+    koaResponse.body = res.body;
+    koaResponse.statusCode = res.statusCode;
+    koaResponse.set(res.headers);
 }
 
 /**
@@ -85,8 +94,8 @@ async function router(ctx, next) {
             let {handlerName, handlerPath} = getLambdaHandler(r, ctx.sam.templateDir);
             debug(handlerName);
             let res = await runLambda(handlerPath, koaRequest2lambdaEvent(ctx.request), handlerName);
-            ctx.response.body = res.body;
-            ctx.response.statusCode = 200;
+
+            lambdaResponse2koa(res, ctx.response);
             return;
         }
     }
@@ -112,5 +121,6 @@ module.exports = {
     koaRequest2lambdaEvent,
     getLambdaHandler,
     router,
-    routerMiddleware
+    routerMiddleware,
+    lambdaResponse2koa
 };

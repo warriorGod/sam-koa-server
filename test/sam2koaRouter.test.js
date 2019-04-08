@@ -2,7 +2,7 @@ const debug = require('debug')('test:sam2koaRouter');
 
 describe('sam2koaRouter', function(){
 
-    const {router, matchRequest, getLambdaHandler} = require('../sam2koaRouter');
+    const {router, matchRequest, getLambdaHandler, koaRequest2lambdaEvent, lambdaResponse2koa} = require('../sam2koaRouter');
 
     function getCtx(url, method, type, sam) {
         let urlNode = require('url');
@@ -16,7 +16,16 @@ describe('sam2koaRouter', function(){
                 querystring: parts.query,
                 type: type || 'application/json'
             },
-            response: {}
+            response: {
+                // aaaaaa
+                set: function(props){
+                    // debug({'thisa':this, props});
+                    if (props) {
+                        debug({props});
+                        Object.assign(this, props);
+                    }
+                }
+            }
         };
 
         return ctx;
@@ -171,5 +180,26 @@ describe('sam2koaRouter', function(){
     });
 
 
+    describe('koaRequest2lambdaEvent', function(){
+
+        it('should convert query params', function() {
+            let koaRequest = getCtx('http://example.com/test?boom=shaka&boom2=laka').request;
+            let event = koaRequest2lambdaEvent(koaRequest);
+
+            event.should.propertyByPath('queryStringParameters').nodeDeepEqual({boom: 'shaka', boom2: 'laka'});
+        });
+    });
+
+    xdescribe('lambdaResponse2koa', function(){
+
+        it('should have headers', function() {
+            // fixme this is s***
+            // let koaResponse = {set: function(props){Object.assign(this, props)}};
+            // let lambdaResponse = {headers: {'Content-Type': 'application/json'}};
+            // lambdaResponse2koa(lambdaResponse, koaResponse);
+            //
+            // koaResponse.should.propertyByPath('headers', 'Content-Type').equal('application/json');
+        });
+    });
 
 });
