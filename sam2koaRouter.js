@@ -1,5 +1,6 @@
 const debug = require('debug')('app:router');
 const {runLambda, lambdaEvent} = require('./runLambda');
+const contentType = require('content-type');
 
 
 function matchRequest(koaRequest, samResource) {
@@ -7,7 +8,7 @@ function matchRequest(koaRequest, samResource) {
         return false;
     }
 
-    $match = false;
+    let match = false;
     if (samResource.data && samResource.data.Properties && samResource.data.Properties.Events) {
         for (let evKey in samResource.data.Properties.Events) {
             let ev = samResource.data.Properties.Events[evKey];
@@ -16,29 +17,52 @@ function matchRequest(koaRequest, samResource) {
                 if ((test.Method && test.Method.toUpperCase() === koaRequest.method) &&
                     (test.Path === koaRequest.path)
                 ) {
-                    $match = true;
+                    match = true;
                     break;
                 }
             }
         }
     }
-
-    return $match;
+    debug({match});
+    return match;
 }
 
 /**
- * Expects the koa request body to be parsed with koa-bodyparser or other middleware
+ * Expects the koa request body to be parsed with koa-bodyparser and raw-body or other middleware
  * @param request
  * @returns {*}
  */
 function koaRequest2lambdaEvent(request) {
-    // headers
+    // sort out the headers
+    let koaHeaders = {};
+    for (let h in request.header) {
+        koaHeaders[h.toLowerCase()] = request.header[h];
+    }
     let other = {
-        headers: request.header
+        headers: koaHeaders
     };
+
+    let body = request.body;
+
+    // when the rawBody should replace the body ....
+    // 1) when rawBody exists, and the header is application/octet-stream
+    if (koaHeaders['content-type']
+        && contentType.parse(koaHeaders['content-type']).type === 'application/octet-stream') {
+        body = request.rawBody || request.body;
+    } else if (koaHeaders['content-type']
+        && (
+            contentType.parse(koaHeaders['content-type']).type === 'application/json'
+            || contentType.parse(koaHeaders['content-type']).type === 'application/ld+json')) {
+        // already parsed body, stringified
+        body = JSON.stringify(request.body);
+    }
+
     // convert querystring to object
     let queryParams = require('querystring').parse(request.querystring || '');
-    return lambdaEvent(request.method, request.url, queryParams, request.body, other);
+
+    // create the lambda event
+    let t = lambdaEvent(request.method, request.url, queryParams, body, other);
+    return t;
 }
 
 function lambdaResponse2koa(runLambdaResponse, koaResponse) {
@@ -96,9 +120,12 @@ async function router(ctx, next) {
             let res = await runLambda(handlerPath, koaRequest2lambdaEvent(ctx.request), handlerName);
 
             lambdaResponse2koa(res, ctx.response);
+            debug({lambdaResponse:res});
+            debug({koaResponse: ctx.response});
             return;
         }
     }
+    debug('no match');
     ctx.response.statusCode = 404;
 }
 
@@ -112,6 +139,9 @@ function routerMiddleware(app) {
             templateDir: require('path').resolve('./')
         }, convert(samTemplate)
     );
+
+    debug('Serving the following routes:');
+    debug(app.context.sam);
 
     return router;
 }

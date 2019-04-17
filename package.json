@@ -1,6 +1,6 @@
 {
   "name": "sam-koa-server",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Run lambdas locally without docker and from sam template.yaml",
   "keywords": [
     "sam",
@@ -25,9 +25,11 @@
   "license": "ISC",
   "dependencies": {
     "command-line-args": "^5.1.0",
+    "content-type": "^1.0.4",
     "koa": "^2.7.0",
     "koa-bodyparser": "^4.2.1",
     "lambda-local": "^1.5.2",
+    "raw-body": "^2.3.3",
     "yaml": "^1.4.0"
   },
   "devDependencies": {

@@ -3,7 +3,7 @@ const debug = require('debug')('app:runLambda');
 // function to generate functional api test requests
 function lambdaEvent(method, endpoint, queryParams, body, other) {
     return Object.assign({
-        "body": body && JSON.stringify(body),
+        "body": body,
         "httpMethod": method,
         "resource": endpoint,
         "queryStringParameters": queryParams,
