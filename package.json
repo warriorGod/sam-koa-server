@@ -1,6 +1,6 @@
 {
   "name": "sam-koa-server",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "Run lambdas locally without docker and from sam template.yaml",
   "keywords": [
     "sam",
